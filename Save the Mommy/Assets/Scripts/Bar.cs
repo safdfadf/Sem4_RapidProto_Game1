@@ -17,7 +17,7 @@ public class Bar : MonoBehaviour
     {
         if (isOsilating)
         {
-            Debug.Log("Slider starts Oscilating");
+           
             barSlider.value = Mathf.PingPong(Time.time * speed, 1);// Ocilates bars value between 0 To 100
             //SliderValueDisplay();
         }

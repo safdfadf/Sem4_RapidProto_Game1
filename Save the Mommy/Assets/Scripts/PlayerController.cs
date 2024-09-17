@@ -6,9 +6,17 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+   
+    private bool isGrabbing;
     private float jumpStrength;
+    private bool isJumping = true;
+
     [SerializeField]
     private float strengthMultiplier;
+    [SerializeField]
+    private float jumpDelay;
+    [SerializeField]
+    private float maxStreangth;
 
 
     private Rigidbody2D rb;
@@ -20,25 +28,47 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space)&& isJumping )
         {
             jump();
         }
     }
     private void jump()
     {
+        isJumping = false;
         Bar.isOsilating = false;
-        jumpStrength = Bar.barSlider.value * strengthMultiplier;
+        jumpStrength = Mathf.Min( Bar.barSlider.value * strengthMultiplier, maxStreangth);
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePosition.z = 0f;
         Vector2 jumpDirection = mousePosition - transform.position;
         rb.velocity = jumpDirection * jumpStrength;
+        StartCoroutine(OscilateAgain());// Slider starts oscilating after few seconds
+    }
+    IEnumerator OscilateAgain()
+    {
+        yield return new WaitForSeconds(jumpDelay);
+        Bar.isOsilating = true;
+    }
+   public void Grab( Transform grabPoint)
+    {
+        isJumping = true;// stops the player from double jumping and player can only jump id it grabs the window 
+        Debug.Log("object Grabbed");
+        isGrabbing = true;
+        rb.velocity = Vector2.zero;
+        //Logic for grabbing the object
+        transform.position = grabPoint.position;
+        rb.gravityScale = 0f;// when the player grabs the object gravity goes zero so that the player wont fall 
+    }
+    public void Release()
+    {
+        isGrabbing = false;
+        rb.gravityScale = 1f;// gravity is back on 
     }
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.collider.CompareTag("GrabableObject"))
+        if (other.collider.CompareTag("Ground")) 
         {
-            // logic for grabing window 
-        }
+            isJumping = true;// if the player lands on ground he can jump again
+        }   
     }
 }
