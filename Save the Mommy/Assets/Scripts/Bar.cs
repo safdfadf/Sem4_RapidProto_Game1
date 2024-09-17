@@ -23,7 +23,7 @@ public class Bar : MonoBehaviour
         }
        
     }
-    public void SliderValueDisplay()
+    public void SliderValueDisplay()// Displayes the value of the slider for more accurate jump
     {
         Debug.Log("Slider value displayed");
         sliderValue.text = (barSlider.value * 100).ToString();

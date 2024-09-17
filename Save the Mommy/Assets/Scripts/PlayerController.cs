@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePosition.z = 0f;
         Vector2 jumpDirection = mousePosition - transform.position;
+        jumpDirection= jumpDirection.normalized;
         rb.velocity = jumpDirection * jumpStrength;
         StartCoroutine(OscilateAgain());// Slider starts oscilating after few seconds
     }
@@ -55,9 +56,22 @@ public class PlayerController : MonoBehaviour
         Debug.Log("object Grabbed");
         isGrabbing = true;
         rb.velocity = Vector2.zero;
+        StartCoroutine(SmoothGrab(grabPoint.position));
         //Logic for grabbing the object
-        transform.position = grabPoint.position;
         rb.gravityScale = 0f;// when the player grabs the object gravity goes zero so that the player wont fall 
+    }
+    IEnumerator SmoothGrab(Vector3 targetPosition)
+    {
+        float elapsedTime = 0f;
+        float duration = 0.2f;
+        Vector3 initialPosition = transform.position;
+        while (elapsedTime < duration)
+        {
+            transform.position = Vector3.Lerp(initialPosition, targetPosition, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        transform.position = targetPosition;
     }
     public void Release()
     {
